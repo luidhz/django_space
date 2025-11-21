@@ -29,3 +29,23 @@ def buscar(request):
             fotografias = fotografias.filter(nome__icontains=nome_a_buscar)
 
     return render(request, "galeria/buscar.html", {"cards": fotografias})
+
+def filtrar_por_tag(request, tag_nome):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Usuário não logado')
+        return redirect('login')
+
+    # Filtra as fotografias que estão publicadas E que correspondem à tag
+    # Importante: Substitua 'tag' (em negrito abaixo) pelo nome exato do campo no seu models.py 
+    # (ex: 'categoria', 'tipo') que armazena os valores como "Nebulosa", "Estrela", etc.
+    fotografias_filtradas = Fotografia.objects.order_by("data_fotografia").filter(
+        publicada=True, 
+        categoria=tag_nome # <-- Corrigido para 'categoria' (Exemplo)
+    )
+
+    contexto = {
+        "cards": fotografias_filtradas,
+        "tag_selecionada": tag_nome, # Adicional: para saber qual tag está ativa no template
+    }
+
+    return render(request, 'galeria/index.html', contexto)
